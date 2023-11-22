@@ -3,6 +3,12 @@ import socket
 import sys
 import requests
 import random
+import threading
+from multiprocessing.dummy import Pool as ThreadPool
+
+import threading
+
+from multiprocessing import Process
 
 def ping(ip): #response = 1 means host respond to ping
     res = subprocess.call(['ping', '-n', '1', ip], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -67,21 +73,35 @@ def randomIP():
 
 
 
-
-
-for i in range(255):
-    ip = randomIP()
-    
+def start(ip):
+    print("trying IP : "+str(ip))
     if portscan(ip,"80") == 0:
-        print("IP : "+ ip + " is up doing http request ...")
-        requestHTTP(ip)
-        if requestHTTP(ip) == True:
-            print("IP : "+ ip + " is up and running http server")
+        print("port 80 open")
+        A = requestHTTP(ip)
+        if A != False:
+            print("IP : "+ ip + " is up and running http server, code : " + str(A))
+            with open("upip.txt","a") as f:
+                f.write(ip + "\n")
+
         else:
-            print("not up")
+            print("NO RESPOND FROM HTTP")
 
 
 
 
+def run_start_with_threads(ip_addresses):
+    threads = []
+    for ip in ip_addresses:
+        thread = threading.Thread(target=start, args=(ip,))
+        threads.append(thread)
+        thread.start()
 
-print(requestHTTP("178.32.155.237"))
+    # Wait for all threads to finish
+    for thread in threads:
+        thread.join()
+if __name__ == '__main__':
+   with open("IPS", 'r') as file:
+    # Read lines from the file and remove leading/trailing whitespaces
+    ip_addresses = [line.strip() for line in file]
+
+   run_start_with_threads(ip_addresses)
