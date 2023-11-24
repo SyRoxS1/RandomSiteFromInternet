@@ -5,7 +5,9 @@ import requests
 import random
 import threading
 from multiprocessing.dummy import Pool as ThreadPool
+
 import threading
+
 from multiprocessing import Process
 
 def ping(ip): #response = 1 means host respond to ping
@@ -60,12 +62,7 @@ def checkResponseCode(code):
         return "server error"
     
     
-def randomIP():
-    a = random.randint(0,255)
-    b = random.randint(0,255)
-    c = random.randint(0,255)
-    d = random.randint(0,255)
-    return(str(a)+'.'+str(b)+'.'+str(c)+'.'+str(d))
+
 
 
 
@@ -97,7 +94,9 @@ def run_start_with_threads(ip_addresses):
     # Wait for all threads to finish
     for thread in threads:
         thread.join()
-
-
 if __name__ == '__main__':
-   
+   with open("IPS", 'r') as file:
+    # Read lines from the file and remove leading/trailing whitespaces
+    ip_addresses = [line.strip() for line in file]
+
+   run_start_with_threads(ip_addresses)
