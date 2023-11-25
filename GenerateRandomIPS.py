@@ -14,6 +14,3 @@ def randomIP():
             return(str(a)+'.'+str(b)+'.'+str(c)+'.'+str(d))
     
 
-with open('IPS.txt','a') as f:
-    while True:
-        f.write(randomIP()+'\n')

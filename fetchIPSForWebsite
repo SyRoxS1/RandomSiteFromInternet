@@ -94,6 +94,7 @@ def run_start_with_threads(ip_addresses):
     # Wait for all threads to finish
     for thread in threads:
         thread.join()
+        
 if __name__ == '__main__':
    with open("IPS", 'r') as file:
     # Read lines from the file and remove leading/trailing whitespaces

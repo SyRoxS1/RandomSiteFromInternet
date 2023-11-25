@@ -39,7 +39,7 @@ def scanAllPorts(ip):
 
 def requestHTTP(ip):
     try:
-        r = requests.get('http://'+ip+'/')
+        r = requests.get('http://'+ip+'/',timeout=5)
         print(r.status_code)
     except:
         return False
@@ -47,6 +47,18 @@ def requestHTTP(ip):
         return r.status_code
     else:
         return False
+
+def requestHTTPS(ip):
+    try:
+        r = requests.get('https://'+ip+'/',timeout=5)
+        print(r.status_code)
+    except:
+        return False
+    if r.status_code >= 200 and r.status_code <= 299:
+        return r.status_code
+    else:
+        return False
+
 def checkResponseCode(code):
     if code >= 100 and code <= 199:
         return "informational"
@@ -59,38 +71,37 @@ def checkResponseCode(code):
     if code >= 500 and code <= 599:
         return "server error"
     
-    
-def randomIP():
-    a = random.randint(0,255)
-    b = random.randint(0,255)
-    c = random.randint(0,255)
-    d = random.randint(0,255)
-    return(str(a)+'.'+str(b)+'.'+str(c)+'.'+str(d))
+def CheckIPsecure(ip):
+    print("trying IP : "+str(ip))
+    if portscan(ip,"443") == 0:
+        print("port 443 open")
+        A = requestHTTP(ip)
+        if A != False:
+            with open('PUBLICIPFOUND.txt','w') as file:
+                file.write(ip)
+            return True
+        else:
+            return False    
 
 
-
-
-
-def start(ip):
+def CheckIP(ip):
     print("trying IP : "+str(ip))
     if portscan(ip,"80") == 0:
         print("port 80 open")
         A = requestHTTP(ip)
         if A != False:
-            print("IP : "+ ip + " is up and running http server, code : " + str(A))
-            with open("upip.txt","a") as f:
-                f.write(ip + "\n")
-
+            with open('PUBLICIPFOUND.txt','w') as file:
+                file.write(ip)
+            return True
         else:
-            print("NO RESPOND FROM HTTP")
-
+            return False
 
 
 
 def run_start_with_threads(ip_addresses):
     threads = []
     for ip in ip_addresses:
-        thread = threading.Thread(target=start, args=(ip,))
+        thread = threading.Thread(target=CheckIP, args=(ip,))
         threads.append(thread)
         thread.start()
 
@@ -98,6 +109,14 @@ def run_start_with_threads(ip_addresses):
     for thread in threads:
         thread.join()
 
+def run_start_with_threads_secure(ip_addresses):
+    threads = []
+    for ip in ip_addresses:
+        thread = threading.Thread(target=CheckIPsecure, args=(ip,))
+        threads.append(thread)
+        thread.start()
 
-if __name__ == '__main__':
-   
+    # Wait for all threads to finish
+    for thread in threads:
+        thread.join()
+
