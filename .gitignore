@@ -1,4 +1,4 @@
 *.key
-*.txt
+PUBLICIPFOUND.txt
 *.pyc
 .env
